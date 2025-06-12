@@ -43,7 +43,7 @@ Server will run on [http://localhost:3000](http://localhost:3000)
 All endpoints require an API key to be passed in the request headers:
 
 ```
-x-api-key: your-secret-api-key
+x-api-key: your-api-key
 ```
 
 ---
