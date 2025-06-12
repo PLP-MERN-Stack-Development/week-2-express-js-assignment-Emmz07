@@ -45,27 +45,98 @@ app.get('/', (req, res) => {
   res.send('Welcome to the Product API! Go to /api/products to see all products.');
 });
 
-// TODO: Implement the following routes:
-// GET /api/products - Get all products
-// GET /api/products/:id - Get a specific product
-// POST /api/products - Create a new product
-// PUT /api/products/:id - Update a product
-// DELETE /api/products/:id - Delete a product
 
-// Example route implementation for GET /api/products
-app.get('/api/products', (req, res) => {
-  res.json(products);
+app.get('/api/products', async (req, res, next) => {
+  try {
+    let query = {};
+    if (req.query.category) {
+      query.category = req.query.category;
+    }
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const total = await Product.countDocuments(query);
+    const products = await Product.find(query).skip(skip).limit(limit);
+
+    res.json({ total, page, products });
+  } catch (err) {
+    next(err);
+  }
 });
 
-// TODO: Implement custom middleware for:
-// - Request logging
-// - Authentication
-// - Error handling
-
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.get('/api/products/search', async (req, res, next) => {
+  try {
+    const { name } = req.query;
+    if (!name) return res.status(400).json({ message: 'Name query required' });
+    const result = await Product.find({ name: new RegExp(name, 'i') });
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
 });
+
+app.get('/api/products/stats', async (req, res, next) => {
+  try {
+    const stats = await Product.aggregate([
+      { $group: { _id: '$category', count: { $sum: 1 } } }
+    ]);
+    res.json(stats);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.get('/api/products/:id', async (req, res, next) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+    res.json(product);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.post('/api/products', validateProduct, async (req, res, next) => {
+  try {
+    const product = new Product(req.body);
+    await product.save();
+    res.status(201).json(product);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.put('/api/products/:id', validateProduct, async (req, res, next) => {
+  try {
+    const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+    res.json(product);
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.delete('/api/products/:id', async (req, res, next) => {
+  try {
+    const product = await Product.findByIdAndDelete(req.params.id);
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+    res.json(product);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ message: 'Internal Server Error' });
+});
+
+// Start Server
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+
 
 // Export the app for testing purposes
 module.exports = app; 
