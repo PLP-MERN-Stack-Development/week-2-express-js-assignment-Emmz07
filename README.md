@@ -1,63 +1,182 @@
-[![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-2e0aaae1b6195c2367325f4f02e2d04e9abb55f0b24a779b69b11b9e10269abc.svg)](https://classroom.github.com/online_ide?assignment_repo_id=19732070&assignment_repo_type=AssignmentRepo)
-# Express.js RESTful API Assignment
+# Express Products API
 
-This assignment focuses on building a RESTful API using Express.js, implementing proper routing, middleware, and error handling.
+A RESTful API built with Express.js and MongoDB for managing products.
 
-## Assignment Overview
+---
 
-You will:
-1. Set up an Express.js server
-2. Create RESTful API routes for a product resource
-3. Implement custom middleware for logging, authentication, and validation
-4. Add comprehensive error handling
-5. Develop advanced features like filtering, pagination, and search
+## 🚀 How to Run the Server
 
-## Getting Started
+### 1. Clone the Repository
 
-1. Accept the GitHub Classroom assignment invitation
-2. Clone your personal repository that was created by GitHub Classroom
-3. Install dependencies:
-   ```
-   npm install
-   ```
-4. Run the server:
-   ```
-   npm start
-   ```
+```bash
+git clone https://github.com/your-username/express-products-api.git
+cd express-products-api
+```
 
-## Files Included
+### 2. Install Dependencies
 
-- `Week2-Assignment.md`: Detailed assignment instructions
-- `server.js`: Starter Express.js server file
-- `.env.example`: Example environment variables file
+```bash
+npm install
+```
 
-## Requirements
+### 3. Create Environment File
 
-- Node.js (v18 or higher)
-- npm or yarn
-- Postman, Insomnia, or curl for API testing
+Create a `.env` file based on the `.env.example` file:
 
-## API Endpoints
+```
+MONGO_URI=your-mongodb-uri
+API_KEY=your-secret-api-key
+```
 
-The API will have the following endpoints:
+### 4. Start the Server
 
-- `GET /api/products`: Get all products
-- `GET /api/products/:id`: Get a specific product
-- `POST /api/products`: Create a new product
-- `PUT /api/products/:id`: Update a product
-- `DELETE /api/products/:id`: Delete a product
+```bash
+node index.js
+```
 
-## Submission
+Server will run on [http://localhost:3000](http://localhost:3000)
 
-Your work will be automatically submitted when you push to your GitHub Classroom repository. Make sure to:
+---
 
-1. Complete all the required API endpoints
-2. Implement the middleware and error handling
-3. Document your API in the README.md
-4. Include examples of requests and responses
+## 🔐 Authentication
 
-## Resources
+All endpoints require an API key to be passed in the request headers:
 
-- [Express.js Documentation](https://expressjs.com/)
-- [RESTful API Design Best Practices](https://restfulapi.net/)
-- [HTTP Status Codes](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) 
+```
+x-api-key: your-secret-api-key
+```
+
+---
+
+## 📚 API Endpoints
+
+### `GET /api/products`
+
+* Description: Get all products (supports pagination and filtering by category)
+* Query Params: `category`, `page`, `limit`
+
+#### Example:
+
+```http
+GET /api/products?page=1&limit=5&category=electronics
+```
+
+#### Response:
+
+```json
+{
+  "total": 2,
+  "page": 1,
+  "products": [ 
+{
+  "name": "Smart Watch",
+  "description": "Touchscreen fitness tracker",
+  "price": 79.99,
+  "category": "Electronics",
+  "inStock": true
+}
+
+]
+}
+```
+
+---
+
+### `GET /api/products/:id`
+
+* Description: Get a product by ID
+
+#### Example:
+
+```http
+GET /api/products/6643ac8db123456789012345
+```
+
+#### Response:
+
+```json
+{
+  "_id": "...",
+  "name": "Product A",
+  ...
+}
+```
+
+---
+
+### `GET /api/products/search?name=term`
+
+* Description: Search products by name (case-insensitive)
+
+#### Example:
+
+```http
+GET /api/products/search/
+```
+
+---
+
+### `GET /api/products/stats`
+
+* Description: Returns product count grouped by category
+
+#### Response:
+
+```json
+[
+  { "_id": "electronics", "count": 5 },
+  { "_id": "books", "count": 3 }
+]
+```
+
+---
+
+### `POST /api/products`
+
+* Description: Create a new product
+* Body (JSON):
+
+```json
+{
+  "name": "Product A",
+  "description": "Description of product",
+  "price": 99.99,
+  "category": "electronics",
+  "inStock": true
+}
+```
+
+---
+
+### `PUT /api/products/:id`
+
+* Description: Update an existing product by ID
+
+---
+
+### `DELETE /api/products/:id`
+
+* Description: Delete a product by ID
+
+---
+
+## Validation
+
+* Required fields: `name`, `description`, `price`, `category`, `inStock`
+* `price` must be a number
+* `inStock` must be a boolean
+
+---
+
+## Technologies Used
+
+* Express.js
+* MongoDB (Mongoose)
+* Morgan (logging)
+* Dotenv
+
+---
+
+## 👨‍💻 Author
+
+* Ojo Emmanuel Tiwalade - [GitHub](https://github.com/Emmz07)
