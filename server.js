@@ -9,8 +9,27 @@ const { v4: uuidv4 } = require('uuid');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware setup
-app.use(bodyParser.json());
+// Middleware
+app.use(express.json());
+app.use(morgan('dev'));
+
+// Authentication Middleware
+app.use((req, res, next) => {
+  const apiKey = req.headers['x-api-key'];
+  if (!apiKey || apiKey !== process.env.API_KEY) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+  next();
+});
+
+// Validation Middleware
+function validateProduct(req, res, next) {
+  const { name, description, price, category, inStock } = req.body;
+  if (!name || !description || typeof price !== 'number' || !category || typeof inStock !== 'boolean') {
+    return res.status(400).json({ message: 'Invalid product data' });
+  }
+  next();
+}
 
 // Sample in-memory products database
 let products = [
