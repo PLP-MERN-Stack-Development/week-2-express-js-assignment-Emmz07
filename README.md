@@ -24,8 +24,8 @@ npm install
 Create a `.env` file based on the `.env.example` file:
 
 ```
-MONGO_URI=your-mongodb-uri
-API_KEY=your-secret-api-key
+MONGO_URI=mongodb+srv://emmz07:missallsunday07@stack00.czhas8d.mongodb.net/products_db
+API_KEY=your-api-key
 ```
 
 ### 4. Start the Server
